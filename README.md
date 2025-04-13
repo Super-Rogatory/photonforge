@@ -4,7 +4,7 @@ PhotonForge is a physically-based Monte Carlo renderer written in C++. It suppor
 
 ---
 
-## Features
+## ✨Features (in Progress)
 
 - 🚧 Path tracing (unbiased global illumination)
 - 🚧 Photon mapping (two-pass caustic + indirect light system)
@@ -16,7 +16,7 @@ PhotonForge is a physically-based Monte Carlo renderer written in C++. It suppor
 
 ---
 
-## Simplified Structure
+## 🗂 Simplified Structure
 
 ```bash
 src/
@@ -30,7 +30,7 @@ src/
 ```
 ---
 
-## Build Instructions
+## 🛠️ Build Instructions
 
 ### Using CMake
 
@@ -45,7 +45,7 @@ make
 
 ---
 
-## Run the Renderer
+## 🚀 How to Run the Renderer
 
 ```bash
 ./photonforge --scene ../scenes/usc.json --mode path --spp 128
