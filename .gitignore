@@ -1,0 +1,42 @@
+# Build artifacts 
+/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Executables 
+/photonforge
+/photonforge.exe
+
+# Compiled objects 
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.out
+
+# System files 
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+*.code-workspace
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Render outputs
+*.ppm
+*.png
+*.jpg
+
+# Logs or debug
+*.log
+
+# User/test config 
+*.json
+*.tmp
+*.bak
