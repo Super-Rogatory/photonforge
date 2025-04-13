@@ -1,1 +1,71 @@
-# photonforge
+# PhotonForge
+
+PhotonForge is a physically-based Monte Carlo renderer written in C++. It supports both **path tracing** and **photon mapping**, simulating realistic lighting effects like soft shadows, indirect illumination, color bleeding, and caustics. Designed to be modular, fast, and educational.
+
+---
+
+## Features
+
+- ✅ Path tracing (unbiased global illumination)
+- ✅ Photon mapping (two-pass caustic + indirect light system)
+- ✅ Hybrid mode: path tracing + photon lookup
+- ✅ Physically-based materials: Diffuse, Specular, Cook-Torrance
+- ✅ Acceleration structures (BVH, KD-Tree)
+- ✅ Outputs `.ppm` image format for easy testing and debugging
+- ✅ CLI support for different render modes and configs
+
+---
+
+## Simplified Structure
+
+```bash
+src/
+├── main.cpp                  # Entry point
+├── core/                     # Math, ray, camera, scene
+├── geometry/                 # Spheres, triangles, BVH, KD-tree
+├── materials/                # Core BRDFs (diffuse, specular, Cook-Torrance)
+├── integrators/              # PathTracer, PhotonMapper, Hybrid
+├── lights/                   # Light sources
+└── utils/                    # Scene loading, image writing, logging
+```
+---
+
+## Build Instructions
+
+### Using CMake
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+> Make sure you have a C++ compiler (GCC or Clang) and CMake installed.
+
+---
+
+## Run the Renderer
+
+```bash
+./photonforge --scene ../scenes/cornell.json --mode path --spp 128
+```
+
+---
+
+## 👨‍💻 Authors
+
+- Abel Ting  
+- Chukwudi Ikem  
+- Claudia Osorio  
+- Elmer Vasquez  
+
+---
+
+## 📚 References
+
+- [Photon Mapping – Henrik Wann Jensen](https://graphics.stanford.edu/papers/photonglobal/)
+- [PBRT: Physically Based Rendering](https://www.pbrt.org/)
+- [James Griffin's Path Tracer](https://github.com/JamesGriffin/Path-Tracer)
+
+
