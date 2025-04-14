@@ -16,6 +16,6 @@ public:
     Ray(const vec3& origin_input,const vec3& direction_input)
         :origin(origin_input),direction(direction_input.normalized()) {}
 
-    vec3 Point(double t) const { return origin + direction * t;}
+    vec3 point(double t) const { return origin + direction * t;}
 };
 #endif

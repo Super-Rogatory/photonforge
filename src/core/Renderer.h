@@ -14,9 +14,9 @@ public:
     Renderer(int w, int h, int samples = 1)
         : image_width(w), image_height(h), spp(samples) {}
     // Pass world data to this renderer.
-    void Render(Scene& scene);
-    void Render_Pixel(Scene& scene, const ivec2& pixel);
-    void Initialize_Hierarchy(Scene& scene);
+    void render(Scene& scene);
+    void renderPixel(Scene& scene, const ivec2& pixel);
+    void initializeHierarchy(Scene& scene);
 };
 
 #endif

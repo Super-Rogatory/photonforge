@@ -41,20 +41,20 @@ public:
     ~Scene() = default; // no need for custom destructor given smart pointers
     
     // essentially the same as const Object* obj, but obj knows when to delete itself 
-    void AddObject(const std::shared_ptr<Object>& obj) {
+    void addObject(const std::shared_ptr<Object>& obj) {
         objects.push_back(obj);
     }
 
-    void AddLight(const std::shared_ptr<Light>& light) {
+    void addLight(const std::shared_ptr<Light>& light) {
         lights.push_back(light);
     }
 
-    void BuildBVH() {
+    void buildBVH() {
         bvh = std::make_shared<BVH>(objects);
     }
 
-    vec3 CastRay(const Ray& ray, int depth) const;
-    Hit ClosestIntersection(const Ray& ray) const;
+    vec3 castRay(const Ray& ray, int depth) const;
+    Hit closestIntersection(const Ray& ray) const;
 };
 
 #endif

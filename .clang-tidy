@@ -1,0 +1,20 @@
+Checks: '-*,readability-identifier-naming'
+
+CheckOptions:
+  # methods: camelCase
+  - key: readability-identifier-naming.MethodCase
+    value: camelBack
+
+  # member variables, function parameters, and local variables: lower_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+
+  # class/struct/enum names: PascalCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
