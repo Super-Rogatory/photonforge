@@ -41,3 +41,19 @@ void AABB::makeEmpty() {
     min.fill(std::numeric_limits<double>::max());
     max = -min;
 }
+
+// return surface area of aabb (for BVH)
+double AABB::surfaceArea() const {
+    vec3 length = max - min;    
+    double topBottom = length[0] * length[1];
+    double frontBack = length[0] * length[2];
+    double leftRight = length[1] * length[2];
+    
+    // multiply by two for each face
+    return 2.0 * (topBottom + frontBack + leftRight);
+}
+
+// return the center of the box (for BVH)
+vec3 AABB::center() const {
+    return 0.5 * (min + max);
+}
