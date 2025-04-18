@@ -1,7 +1,7 @@
 #ifndef __AABB_H__
 #define __AABB_H__
 
-#include "Ray.h"
+#include "../core/Ray.h"
 
 class AABB
 {
@@ -16,6 +16,10 @@ public:
     AABB operator+(const vec3 &point) const;
     // create a box to which points can be correctly added using '+' operator
     void makeEmpty();
+    // return the surface area of the box
+    double surfaceArea() const;
+    // return center point of the box
+    vec3 center() const;
 };
 
 #endif
