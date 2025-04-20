@@ -1,10 +1,10 @@
 #ifndef __VEC__
 #define __VEC__
 
+#include "utils/Constants.h"
 #include <cmath>
 #include <iostream>
 #include <cassert>
-
 static const double pi = 4 * atan(1.0);
 
 template<class T, int n> struct vec;
