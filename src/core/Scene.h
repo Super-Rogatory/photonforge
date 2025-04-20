@@ -11,11 +11,9 @@
 #include "geometry/BVH.h"
 
 // TODO: forward declations, as classs are not defined yet! REMOVE THIS LINE LATER!
-class Object;
 class Light;
 class Camera;
 class BVH;
-class Hit;
 // TODO: THIS LINE ^ REMOVE IT LATER!
 
 // Scene holds all the objects, lights, and camera in the scene. (essentially the world data)
