@@ -17,12 +17,16 @@ public:
 
     Object() = default;
     Object(const Object&) = delete; // disable copy constructor
-    Object& operator=(const Object&) = delete; // disable copy assignment
+    Object& operator=(const Object&) = delete; // disable copy assignmentObject(Object&&) = default;
+    Object& operator=(Object&&) = default; // enable move assignment
+    Object(Object&&) = default; // enable move constructor
     virtual ~Object() = default; // virtual destructor for polymorphic behavior
 
     virtual Hit intersect(const Ray& ray) const = 0; // pure virtual function for intersection
     virtual vec3 getNormal(const vec3& point) const = 0; // pure virtual function for normal calculation
     virtual AABB getBoundingBox() const = 0; // pure virtual function for bounding box
+
+    bool hasMaterial() const { return material_shader != nullptr; } // check if object has a material
 };
 
 #endif
