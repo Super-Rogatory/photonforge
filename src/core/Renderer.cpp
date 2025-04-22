@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "utils/ImageWriter.h"
 
 // logic for rendering the scene, tightly coupled with scene class
 void Renderer::render(Scene &scene) {
@@ -7,6 +8,7 @@ void Renderer::render(Scene &scene) {
             renderPixel(scene, ivec2(x, y));
         }
     }
+    writeImage("../output.ppm");
 }
 
 // set up initial view ray and call the scene to cast the ray
@@ -21,4 +23,9 @@ void Renderer::setPixel(const ivec2& pixel, const vec3& color) {
     // j * number_pixels[0] + i
     int index = pixel[1] * image_width + pixel[0];
     framebuffer[index] = color;
+}
+
+// write the framebuffer to a PPM file, using utils/ImageWriter.h
+void Renderer::writeImage(const std::string& filename) {
+    ImageWriter::writePPM(filename, framebuffer, image_width, image_height);
 }

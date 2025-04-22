@@ -10,11 +10,9 @@
 #include "core/Camera.h"
 #include "geometry/BVH.h"
 
-// TODO: forward declations, as classs are not defined yet! REMOVE THIS LINE LATER!
 class Light;
 class Camera;
 class BVH;
-// TODO: THIS LINE ^ REMOVE IT LATER!
 
 // Scene holds all the objects, lights, and camera in the scene. (essentially the world data)
 class Scene {
@@ -31,7 +29,7 @@ public:
     bool enable_shadows;
     int recursion_depth_limit;
 
-    Scene();
+    Scene() = default;
     Scene(const Scene&) = delete; // disable copy constructor, unique pointers cannot be copied, strict ownership
     Scene& operator=(const Scene&) = delete; // disable copy assignment, unique pointers cannot be copied
     Scene(Scene&&) = default; // enable move semantics
@@ -47,9 +45,9 @@ public:
         lights.push_back(light);
     }
 
-    void buildBVH() {
-        bvh = std::make_shared<BVH>(objects);
-    }
+    // void buildBVH() {
+    //     bvh = std::make_shared<BVH>(objects);
+    // }
 
     vec3 castRay(const Ray& ray, int depth) const;
     Hit closestIntersection(const Ray& ray) const;

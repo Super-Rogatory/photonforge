@@ -5,8 +5,6 @@
 #include "Camera.h"
 #include "../core/Ray.h"
 
-typedef unsigned int Pixel;
-
 class PerspectiveCamera : public Camera 
 {
 public:
@@ -23,20 +21,20 @@ public:
     vec2 pixel_size; // physical dimensions of a pixel
     
     PerspectiveCamera();
-    ~PerspectiveCamera();
+    virtual ~PerspectiveCamera();
 
     // Used for setting up camera parameters
-    void Position_And_Aim_Camera(const vec3& position_input,
+    void positionAndAimCamera(const vec3& position_input,
         const vec3& look_at_point,const vec3& pseudo_up_vector);
-    void Focus_Camera(double focal_distance,double aspect_ratio,
+    void focusCamera(double focal_distance,double aspect_ratio,
         double field_of_view);
-    void Set_Resolution(const ivec2& number_pixels_input);
+    void setResolution(const ivec2& number_pixels_input);
 
     // Used for determining the where pixels are
-    vec3 World_Position(const ivec2& pixel_index) const;
-    vec2 Cell_Center(const ivec2& pixel_index) const;
+    vec3 worldPosition(const ivec2& pixel_index) const;
+    vec2 cellCenter(const ivec2& pixel_index) const;
 
     // get ray for a given pixel
-    Ray Get_Ray(const ivec2& pixel_index) const;
+    Ray generateRay(const ivec2& pixel_index) const;
 };
 #endif

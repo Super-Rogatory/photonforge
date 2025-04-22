@@ -17,9 +17,9 @@ struct vec {
     vec() { make_zero(); }
 
     explicit vec(const T& a) {
-        assert(n == 1); x[0] = a;
-    }
-
+        fill(a);
+    }    
+    
     vec(const T& a, const T& b) {
         assert(n == 2); x[0] = a; x[1] = b;
     }
