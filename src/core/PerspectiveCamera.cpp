@@ -29,7 +29,7 @@ void PerspectiveCamera::Focus_Camera(double focal_distance,double aspect_ratio,
 
 void PerspectiveCamera::Set_Resolution(const ivec2& number_pixels_input)
 {
-    Camera::Set_Resolution(number_pixels_input);
+    Camera::setResolution(number_pixels_input);
     
     min=-0.5*image_size;
     max=0.5*image_size;
