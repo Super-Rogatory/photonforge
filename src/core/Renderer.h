@@ -25,18 +25,3 @@ public:
 
 #endif
 
-// typedef unsigned int Pixel;
-// void Set_Resolution(const ivec2& number_pixels_input);
-
-// inline Pixel Pixel_Color(const vec3& color)
-// {
-//     unsigned int r=std::min(color[0],1.0)*255;
-//     unsigned int g=std::min(color[1],1.0)*255;
-//     unsigned int b=std::min(color[2],1.0)*255;
-//     return (r<<24)|(g<<16)|(b<<8)|0xff;
-// }
-
-// inline vec3 From_Pixel(Pixel color)
-// {
-//     return vec3(color>>24,(color>>16)&0xff,(color>>8)&0xff)/255.;
-// }
