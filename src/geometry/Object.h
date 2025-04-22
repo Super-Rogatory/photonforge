@@ -9,7 +9,6 @@
 #include "materials/Material.h"
 
 class Material;
-class AABB;
 
 class Object {
 public:
@@ -25,7 +24,7 @@ public:
     virtual Hit intersect(const Ray& ray) const = 0; // pure virtual function for intersection
     virtual vec3 getNormal(const vec3& point) const = 0; // pure virtual function for normal calculation
     virtual AABB getBoundingBox() const = 0; // pure virtual function for bounding box
-
+    virtual int getNumberOfParts() const = 0; // pure virtual function for number of parts
     bool hasMaterial() const { return material_shader != nullptr; } // check if object has a material
 };
 
