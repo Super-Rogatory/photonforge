@@ -7,8 +7,8 @@
 
 class ImageWriter {
 public:
-    static void writePPM(const std::string& filename,
-                         const std::vector<vec3>& framebuffer,
+    static void writePPM(const std::string &filename,
+                         const std::vector<vec3> &framebuffer,
                          int width, int height) {
         std::ofstream file(filename, std::ios::out | std::ios::binary);
         std::cout << "Dumping output to " << filename << std::endl;
