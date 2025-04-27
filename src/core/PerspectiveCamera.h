@@ -35,6 +35,6 @@ public:
     vec2 cellCenter(const ivec2& pixel_index) const;
 
     // get ray for a given pixel
-    Ray generateRay(const ivec2& pixel_index) const;
+    Ray generateRay(const ivec2& pixel_index) const override;
 };
 #endif

@@ -3,6 +3,7 @@
 
 #include "core/Vec.h"
 #include "core/Scene.h"
+
 class FlatMaterial : public Material {
 public:
     vec3 flat_color;
