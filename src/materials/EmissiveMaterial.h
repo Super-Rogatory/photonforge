@@ -6,19 +6,19 @@
 
 class EmissiveMaterial : public Material {
 public:
-    vec3 flat_color;
+    vec3 emitted_color;
 
     explicit EmissiveMaterial(const vec3& color)
-        : flat_color(color) {}
+        : emitted_color(color) {}
 
     virtual vec3 shade(const Ray& ray,
                 const vec3& hit_point,
                 const vec3& normal,
                 const Scene& scene) const override {
-        return flat_color; // ignore lights, shadows, normals
+        return emitted_color; // ignore lights, shadows, normals
     }
 
-    vec3 emitted() const { return flat_color; } // flat color is the emitted light
+    vec3 emitted() const { return emitted_color; } // flat color is the emitted light
 };
     
 #endif
