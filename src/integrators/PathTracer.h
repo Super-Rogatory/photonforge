@@ -22,6 +22,7 @@ public:
     void initializeHierarchy(Scene& scene);
     void writeImage(const std::string& filename);
     void setPixel(const ivec2& pixel_index, const vec3& color);
+    vec3 nextEventEstimation(Scene &scene, const vec3 &hit_point, const vec3 &normal, const vec3 &view_dir, const Material &mat);
 private:
     Sampler sampler; // for sampling
     vec3 transformToWorld(const vec3 &local, const vec3 &normal);
