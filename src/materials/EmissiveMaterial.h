@@ -4,11 +4,11 @@
 #include "core/Vec.h"
 #include "core/Scene.h"
 
-class FlatMaterial : public Material {
+class EmissiveMaterial : public Material {
 public:
     vec3 flat_color;
 
-    explicit FlatMaterial(const vec3& color)
+    explicit EmissiveMaterial(const vec3& color)
         : flat_color(color) {}
 
     virtual vec3 shade(const Ray& ray,
@@ -17,6 +17,8 @@ public:
                 const Scene& scene) const override {
         return flat_color; // ignore lights, shadows, normals
     }
+
+    vec3 emitted() const { return flat_color; } // flat color is the emitted light
 };
     
 #endif
