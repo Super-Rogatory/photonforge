@@ -5,6 +5,7 @@
 #include <vector>
 #include "core/Vec.h"
 
+// may extend this to support more formats
 class ImageWriter {
 public:
     static void writePPM(const std::string &filename,

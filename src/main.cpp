@@ -42,7 +42,7 @@ int main() {
     scene.addObject(triangle);
     
     // Render
-    PathTracer tracer(512, 512, 500, 5); 
+    PathTracer tracer(512, 512, 1000, 5); 
     tracer.render(scene);
     
 

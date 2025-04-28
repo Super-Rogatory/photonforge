@@ -20,7 +20,8 @@ public:
     void render(Scene& scene);
     vec3 renderPathTracer(Scene &scene, int depth, Ray ray);
     void initializeHierarchy(Scene& scene);
-    void writeImage(const std::string& filename);
+    void writeImage(const std::string &filename, const std::string &format);
+    void printProgress(int pixels_rendered, int total_pixels) const;
     void setPixel(const ivec2& pixel_index, const vec3& color);
     vec3 nextEventEstimation(Scene &scene, const vec3 &hit_point, const vec3 &normal, const vec3 &view_dir, const Material &mat);
 private:

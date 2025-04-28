@@ -5,6 +5,9 @@
 
 // logic for rendering the scene, tightly coupled with scene class
 void PathTracer::render(Scene &scene) {
+    int total_pixels = image_width * image_height;
+    int pixel_count = 0;
+
     for (int y = 0; y < image_height; ++y) {
         for (int x = 0; x < image_width; ++x) {
             vec3 color(0);
@@ -14,9 +17,17 @@ void PathTracer::render(Scene &scene) {
                 color += renderPathTracer(scene, 0, ray);
             }
             setPixel(ivec2(x, y), color / static_cast<double>(spp));
+            ++pixel_count;
+        }
+        if (y % 10 == 0 || y == image_height - 1) { 
+            printProgress(pixel_count, total_pixels);
         }
     }
-    writeImage("../output.ppm");
+    if(pixel_count == total_pixels) {
+        std::cout << std::endl;
+        std::cout << "Rendering complete!" << std::endl;
+        writeImage("../output.ppm", "ppm");
+    }
 }
 
 // transform local direction to world space using the normal vector
@@ -122,7 +133,30 @@ void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
     framebuffer[index] = color;
 }
 
-void PathTracer::writeImage(const std::string& filename) {
-    ImageWriter::writePPM(filename, framebuffer, image_width, image_height);
+void PathTracer::writeImage(const std::string &filename, const std::string &format) {
+    if(format == "ppm") 
+        ImageWriter::writePPM(filename, framebuffer, image_width, image_height);
+    else if(format == "png") {
+        // Implement PNG writing logic here [future implementation]
+    } else if(format == "jpg") {
+        // Implement JPG writing logic here [future implementation]
+    } else {
+        std::cerr << "Unsupported format: " << format << std::endl;
+        return;
+    }
 }
 
+void PathTracer::printProgress(int pixels_rendered, int total_pixels) const {
+    double progress = (pixels_rendered / (double)total_pixels) * 100.0;
+    int bar_width = 50;
+    int pos = (int)(bar_width * progress / 100.0);
+
+    std::cout << "[";
+    for (int i = 0; i < bar_width; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << int(progress) << " %\r";
+    std::cout.flush();
+}
