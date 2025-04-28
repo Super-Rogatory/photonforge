@@ -34,7 +34,7 @@ int main() {
     // ----
 
     // === Run the Path Tracer! ===
-    PathTracer tracer(256, 256, 20, 5); // width, height, spp, max_depth
+    PathTracer tracer(256, 256, 1000, 5); // width, height, spp, max_depth
     tracer.render(scene);
 
     return 0;

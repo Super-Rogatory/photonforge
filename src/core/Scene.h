@@ -6,9 +6,9 @@
 #include "core/Ray.h"
 #include "core/Vec.h"
 #include "geometry/Object.h"
+#include "geometry/BVH.h"
 #include "lights/Light.h"
 #include "core/Camera.h"
-#include "utils/BVH.h"
 
 class Light;
 class Camera;
