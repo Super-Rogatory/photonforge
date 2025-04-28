@@ -18,7 +18,7 @@ public:
         return emitted_color; // ignore lights, shadows, normals
     }
 
-    vec3 emitted() const { return emitted_color; } // flat color is the emitted light
+    vec3 emitted() const override { return emitted_color; } // flat color is the emitted light
 };
     
 #endif

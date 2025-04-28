@@ -1,47 +1,41 @@
-// TEST FROM GPT!!
 #include "core/Scene.h"
-#include "core/Renderer.h"
 #include "core/PerspectiveCamera.h"
 #include "geometry/Sphere.h"
-#include "materials/PhongMaterial.h"
-#include "lights/PointLight.h"
+#include "materials/EmissiveMaterial.h"
+#include "materials/DiffuseMaterial.h"
+#include "integrators/PathTracer.h"
 
 int main() {
-    // === Scene Setup ===
     Scene scene;
-    scene.ambient_color = vec3(1.0);        // white ambient
-    scene.ambient_intensity = 0.1;
-    scene.enable_shadows = true;
+    scene.ambient_color = vec3(0.0); // no ambient, path tracer handles indirect
+    scene.ambient_intensity = 0.0;
+    scene.enable_shadows = false; // for path tracing shadows are implicit
 
-    // === Camera Setup ===
     auto cam = std::make_unique<PerspectiveCamera>();
-    cam->positionAndAimCamera(vec3(0, 0, -5), vec3(0, 0, 0), vec3(0, 1, 0));
-    cam->focusCamera(1.0, 1.0, 45.0 * pi / 180.0); // 45 degree FOV
-    cam->setResolution(ivec2(512, 512));
+    cam->positionAndAimCamera(vec3(0, 1, -5), vec3(0, 1, 0), vec3(0, 1, 0));
+    cam->focusCamera(1.0, 1.0, 60.0 * pi / 180.0);
+    cam->setResolution(ivec2(256, 256));
     scene.camera = std::move(cam);
+    // ----
+    // Emissive light sphere
+    auto lightSphere = std::make_shared<Sphere>(vec3(0, 3, 0), 0.5);
+    lightSphere->material_shader = std::make_shared<EmissiveMaterial>(vec3(10.0, 10.0, 10.0));
+    scene.addObject(lightSphere);
 
-    // === Sphere + Material ===
-    auto sphere = std::make_shared<Sphere>(vec3(0, 0, 0), 1.0);
-    auto phong = std::make_shared<PhongMaterial>(
-        vec3(0.3),               // ambient
-        vec3(0.7, 0.2, 0.2),     // diffuse (reddish)
-        vec3(0.7),               // specular (white)
-        16                      // shininess
-    );
-    sphere->material_shader = phong;
-    scene.addObject(sphere);
+    // Diffuse sphere to receive light
+    auto diffuseSphere = std::make_shared<Sphere>(vec3(0, 0, 0), 1.0);
+    diffuseSphere->material_shader = std::make_shared<DiffuseMaterial>(vec3(0.7, 0.1, 0.1)); // reddish diffuse
+    scene.addObject(diffuseSphere);
 
-    // === Light ===
-    auto light = std::make_shared<PointLight>(
-        vec3(5, 5, -5),          // position
-        vec3(1.0, 1.0, 1.0),     // white light
-        300.0                    // brightness
-    );
-    scene.addLight(light);
+    // Optional: ground
+    auto ground = std::make_shared<Sphere>(vec3(0, -1001, 0), 1000.0);
+    ground->material_shader = std::make_shared<DiffuseMaterial>(vec3(0.2, 0.8, 0.2)); // green ground
+    scene.addObject(ground);
+    // ----
 
-    // === Render! ===
-    Renderer renderer(512, 512, 1); // width, height, samples per pixel
-    renderer.render(scene);        // includes writePPM inside
+    // === Run the Path Tracer! ===
+    PathTracer tracer(256, 256, 20, 5); // width, height, spp, max_depth
+    tracer.render(scene);
 
     return 0;
 }
