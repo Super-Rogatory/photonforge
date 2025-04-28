@@ -35,7 +35,7 @@ int main() {
     auto light = std::make_shared<PointLight>(
         vec3(5, 5, -5),          // position
         vec3(1.0, 1.0, 1.0),     // white light
-        100.0                    // brightness
+        300.0                    // brightness
     );
     scene.addLight(light);
 

@@ -15,6 +15,7 @@ vec3 PhongMaterial::shade(const Ray& ray,
         vec3 light_dir = light_vec.normalized();
         vec3 emitted = light->emittedLight(light_vec);
 
+        // shadow ray check
         Ray shadow_ray(hit_point + small_t * light_dir, light_dir);
         Hit shadow_hit = scene.closestIntersection(shadow_ray);
         double light_distance = light_vec.magnitude();

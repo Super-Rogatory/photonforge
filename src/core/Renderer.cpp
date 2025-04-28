@@ -19,13 +19,13 @@ void Renderer::renderPixel(Scene &scene, const ivec2 &pixel) {
 }
 
 // call to set the color of a pixel
-void Renderer::setPixel(const ivec2& pixel, const vec3& color) {
+void Renderer::setPixel(const ivec2 &pixel, const vec3 &color) {
     // j * number_pixels[0] + i
     int index = pixel[1] * image_width + pixel[0];
     framebuffer[index] = color;
 }
 
 // write the framebuffer to a PPM file, using utils/ImageWriter.h
-void Renderer::writeImage(const std::string& filename) {
+void Renderer::writeImage(const std::string &filename) {
     ImageWriter::writePPM(filename, framebuffer, image_width, image_height);
 }

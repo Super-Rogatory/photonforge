@@ -8,7 +8,7 @@
 #include "geometry/Object.h"
 #include "lights/Light.h"
 #include "core/Camera.h"
-#include "geometry/BVH.h"
+#include "utils/BVH.h"
 
 class Light;
 class Camera;
