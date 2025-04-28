@@ -5,12 +5,10 @@
 #include "Triangle.h"
 #include "../core/Vec.h"
 #include "BVH.h"
-#include "../materials/Material.h"
 
 class TriangleMesh : public Object {
     public:
-        TriangleMesh(const std::vector<vec3>& vertices, const std::vector<int>& indices, Material* material);
-        
+        TriangleMesh(const std::vector<vec3>& vertices, const std::vector<int>& indices, std::shared_ptr<Material> material);     
         Hit intersect(const Ray& ray) const override;
         AABB getBoundingBox() const override;
         

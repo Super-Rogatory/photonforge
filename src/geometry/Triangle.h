@@ -16,6 +16,10 @@ class Triangle : public Object {
         vec3 getNormal(const vec3& point) const override;
         AABB getBoundingBox() const override;
 
+        virtual int getNumberOfParts() const override {
+            return 1;
+        }
+
     private:
         // Compute it once, save time later for all the intersections calls we make
         void saveNormal();
