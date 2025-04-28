@@ -9,7 +9,8 @@ void PathTracer::render(Scene &scene) {
         for (int x = 0; x < image_width; ++x) {
             vec3 color(0);
             for (int s = 0; s < spp; ++s) {
-                Ray ray = scene.camera->generateRay(ivec2(x, y));
+                int corrected_y = image_height - 1 - y;
+                Ray ray = scene.camera->generateRay(ivec2(x, corrected_y));                
                 color += renderPathTracer(scene, 0, ray);
             }
             setPixel(ivec2(x, y), color / static_cast<double>(spp));
@@ -22,7 +23,6 @@ float rand01() {
     return rand() / (float)RAND_MAX;
 }
 
-// got from chat gpt
 vec3 randomUnitVectorHemisphere(const vec3& normal) {
     float z = rand01();
     float r = std::sqrt(1.0f - z*z);
