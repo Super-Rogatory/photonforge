@@ -1,4 +1,4 @@
-#include "CookTorrance.h"
+#include "CookTorranceMaterial.h"
 #include "core/Scene.h"
 #include "core/Vec.h"
 #include "lights/Light.h"

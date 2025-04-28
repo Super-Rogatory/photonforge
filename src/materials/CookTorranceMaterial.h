@@ -21,8 +21,8 @@ The geometric function is used to describe the attenuation of light due to the m
 The fresnel term is used to simulate the reflection of light at the surface.
 */
 
-#ifndef __COOKTORRANCE_H__
-#define __COOKTORRANCE_H__
+#ifndef __COOKTORRANCE_MATERIAL_H__
+#define __COOKTORRANCE_MATERIAL_H__
 
 #include "Material.h"
 #include "core/Vec.h"
