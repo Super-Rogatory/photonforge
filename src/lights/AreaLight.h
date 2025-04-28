@@ -14,7 +14,7 @@ public:
     AreaLight(const vec3& pos, const vec3& norm, double w, double h, const vec3& color, double brightness)
         : Light(pos, color, brightness), normal(norm.normalized()), width(w), height(h) {}
 
-    vec3 emittedLight(const vec3& direction_to_light) const {
+    vec3 emittedLight(const vec3& direction_to_light) const override {
         double cos_theta = dot(normal, -direction_to_light.normalized());
         if (cos_theta <= 0.0) {
             return vec3(0.0); // only emit from front side
