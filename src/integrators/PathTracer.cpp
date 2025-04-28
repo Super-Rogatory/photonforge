@@ -39,9 +39,8 @@ vec3 PathTracer::transformToWorld(const vec3& local, const vec3& normal) {
 
 // set up initial view ray and call the scene to cast the ray
 vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
-    if (depth >= max_depth) return vec3(0);
-
     Hit hit = scene.closestIntersection(ray);
+
     if (hit.object == nullptr) return vec3(0);
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
@@ -58,9 +57,24 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     
     if (pdf < 1e-6f) return emitted;
     
+    // === Russian Roulette Termination ===
+    // terminate paths in Monte Carlo ray tracing by probabilistically deciding whether to continue tracing a path or terminate it.
+    // ^ Saves computation time and memory!
+    const double rr_prob = 0.8; // survival probability (could tweak between 0.7 - 0.95)
+    if (depth >= 3) { 
+        if (sampler.getRandomFloat() > rr_prob) {
+            return emitted;
+        }
+    }
+
     vec3 incoming = renderPathTracer(scene, depth + 1, new_ray);
     vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
-    
+
+     // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
+     if (depth >= 3) {
+        incoming /= rr_prob;
+    }
+
     return emitted + (brdf * incoming * cos_theta / pdf);
     
 }
