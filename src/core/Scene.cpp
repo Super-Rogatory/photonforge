@@ -30,3 +30,15 @@ vec3 Scene::castRay(const Ray &ray, int depth) const {
 
     return color;
 }
+
+void Scene::prepareLights() {
+    // reset light importance vars
+    light_importance.clear();
+    total_light_importance = 0.0;
+    // loop through all lights and compute their importance
+    for (const auto &light : lights) {
+        double power = light->color.magnitude() * light->brightness;
+        light_importance.push_back(power);
+        total_light_importance += power;
+    }
+}

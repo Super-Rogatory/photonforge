@@ -5,6 +5,7 @@
 #include "Triangle.h"
 #include "../core/Vec.h"
 #include "BVH.h"
+#include <vector>
 
 class TriangleMesh : public Object {
     public:

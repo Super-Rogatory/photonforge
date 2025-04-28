@@ -19,24 +19,66 @@ void PathTracer::render(Scene &scene) {
     writeImage("../output.ppm");
 }
 
-float rand01() {
-    return rand() / (float)RAND_MAX;
+// transform local direction to world space using the normal vector
+vec3 PathTracer::transformToWorld(const vec3& local, const vec3& normal) {
+    vec3 tangent;
+    if (std::abs(normal[0]) > 0.1) 
+        tangent = cross(vec3(0,1,0), normal);
+    else 
+        tangent = cross(vec3(1,0,0), normal);
+    
+    tangent = tangent.normalized();
+    vec3 bitangent = cross(normal, tangent).normalized();
+
+    vec3 world_dir = 
+        local[0] * tangent +
+        local[1] * bitangent +
+        local[2] * normal;    
+    return world_dir.normalized();
 }
 
-vec3 randomUnitVectorHemisphere(const vec3& normal) {
-    float z = rand01();
-    float r = std::sqrt(1.0f - z*z);
-    float phi = 2.0f * M_PI * rand01();
-    vec3 random(r * std::cos(phi), r * std::sin(phi), z);
-    // Align z+ to normal
-    return (dot(random, normal) < 0.0) ? -random : random;
+// sample light source and compute the contribution of that light to the hit point
+vec3 PathTracer::nextEventEstimation(Scene &scene, const vec3 &hit_point, const vec3 &normal, const vec3 &view_dir, const Material &mat) {
+    if(scene.lights.empty()) return vec3(0);
+
+    double random_value = sampler.getRandomFloat() * scene.total_light_importance;
+    double cumulative = 0.0;
+    int selected_light_index = 0;
+    for (int i = 0; i < scene.lights.size(); ++i) {
+        cumulative += scene.light_importance[i];
+        if (random_value <= cumulative) {
+            selected_light_index = i;
+            break;
+        }
+    }
+    const auto& light = scene.lights[selected_light_index];
+    
+
+    vec3 light_pos = light->position;
+    vec3 light_dir = (light_pos - hit_point).normalized();
+    double light_distance = (light_pos - hit_point).magnitude();
+
+    // shadow ray check
+    Ray shadow_ray(hit_point + small_t * light_dir, light_dir);
+    Hit shadow_hit = scene.closestIntersection(shadow_ray);
+    if (scene.enable_shadows && shadow_hit.object && shadow_hit.t < light_distance) {
+        return vec3(0);
+    }
+
+    // if light is not occluded, compute the light contribution
+    vec3 emitted = light->emittedLight(light_dir);
+    double cos_theta = std::max(dot(light_dir, normal), 0.0);
+
+    vec3 brdf = mat.shade(shadow_ray, hit_point, normal, scene) / pi; // lambertian reflectance
+    double pdf_light = scene.light_importance[selected_light_index] / scene.total_light_importance;
+
+    return emitted * brdf * cos_theta / pdf_light;
 }
 
 // set up initial view ray and call the scene to cast the ray
 vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
-    if (depth >= max_depth) return vec3(0);
-
     Hit hit = scene.closestIntersection(ray);
+
     if (hit.object == nullptr) return vec3(0);
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
@@ -44,17 +86,35 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
 
     vec3 emitted = hit.object->material_shader->emitted(); // will be 0 unless emissive
 
-    vec3 new_direction = randomUnitVectorHemisphere(normal);
+    vec3 local_dir = sampler.getCosineWeightedHemisphereDirection();
+    vec3 new_direction = transformToWorld(local_dir, normal);
     Ray new_ray(hit_point + small_t * new_direction, new_direction);
-
+    
     float cos_theta = std::max(dot(new_direction, normal), 0.0);
-    float pdf = 1.0f / (2.0f * pi);
-
+    float pdf = cos_theta / M_PI;
+    
+    if (pdf < 1e-6f) return emitted;
+    
+    // === Russian Roulette Termination ===
+    // terminate paths in Monte Carlo ray tracing by probabilistically deciding whether to continue tracing a path or terminate it.
+    // ^ Saves computation time and memory!
+    const double rr_prob = 0.8;
+    if (depth >= 3 && sampler.getRandomFloat() > rr_prob) {
+        return emitted;
+    }
+    // === End Russian Roulette Termination ===
+    
     vec3 incoming = renderPathTracer(scene, depth + 1, new_ray);
+    vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
 
-    vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / pi;
+     // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
+     if (depth >= 3) {
+        incoming /= rr_prob;
+    }
 
-    return emitted + (brdf * incoming * cos_theta / pdf);
+    // compute the contribution of the light source to the hit point
+    vec3 light_contribution = nextEventEstimation(scene, hit_point, normal, new_direction, *hit.object->material_shader);
+    return emitted + light_contribution + (brdf * incoming * cos_theta / pdf);
 }
 
 void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
@@ -65,3 +125,4 @@ void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
 void PathTracer::writeImage(const std::string& filename) {
     ImageWriter::writePPM(filename, framebuffer, image_width, image_height);
 }
+

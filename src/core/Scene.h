@@ -6,9 +6,9 @@
 #include "core/Ray.h"
 #include "core/Vec.h"
 #include "geometry/Object.h"
+#include "geometry/BVH.h"
 #include "lights/Light.h"
 #include "core/Camera.h"
-#include "utils/BVH.h"
 
 class Light;
 class Camera;
@@ -22,9 +22,11 @@ public:
     std::vector<std::shared_ptr<Object>> objects;       // scene geometry
     std::vector<std::shared_ptr<Light>> lights;         // emissive sources
     std::shared_ptr<BVH> bvh;                           // acceleration structure
+    std::vector<double> light_importance; // importance of each light source, for next event estimation
 
     vec3 ambient_color;
     double ambient_intensity;
+    double total_light_importance; // total light intensity for all lights
 
     bool enable_shadows;
     int recursion_depth_limit;
@@ -48,7 +50,7 @@ public:
     // void buildBVH() {
     //     bvh = std::make_shared<BVH>(objects);
     // }
-
+    void prepareLights();
     vec3 castRay(const Ray& ray, int depth) const;
     Hit closestIntersection(const Ray& ray) const;
 };
