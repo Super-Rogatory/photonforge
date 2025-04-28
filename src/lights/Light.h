@@ -16,6 +16,7 @@ public:
 
     virtual ~Light() = default;
     virtual vec3 emittedLight(const vec3& direction_to_light) const = 0;
+    virtual Ray emitPhoton() const = 0;
 };
 
 #endif
