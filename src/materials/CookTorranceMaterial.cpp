@@ -4,10 +4,6 @@
 #include "lights/Light.h"
 #include "geometry/Hit.h"
 
-vec3 fresnelSchlick(double cosT, const vec3 &F0) {
-    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosT, 5.0);
-}
-
 // implementation inspired from: http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx
 double chiGGX(double v) {
     return v > 0.0f ? 1.0f : 0.0f;
@@ -72,7 +68,7 @@ vec3 CookTorranceMaterial::shade(const Ray &ray, const vec3 &hit_point,
         if (NdotL > 0.0 && NdotV > 0.0) {
             double D = distributionGGX(normal, half_vector, roughness);
             double G = geometryGGX(view_dir, light_dir, normal, half_vector, roughness);
-            vec3 F = fresnelSchlick(VdotH, k_s);
+            vec3 F = Material::fresnelSchlick(VdotH, k_s);
 
             vec3 specular = (D * G * F) / (4.0 * NdotL * NdotV + small_t);
             vec3 diffuse = (vec3(1.0) - F) * k_d / pi;
