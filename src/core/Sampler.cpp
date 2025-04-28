@@ -15,8 +15,20 @@ double Sampler::getRandomFloat()
     return floatDistribution(randomNumGenerator); //returns between 0 and 1
 }
 
+// Makes sure its more likely to be perpendicular cause thats what real light would do, 
+// but not all cause that would be unrealistic
 vec3 Sampler::getCosineWeightedHemisphereDirection()
 {
-    double pi = M_PI;
-    // gonna do this in a bit, shouldnt be a huge blocker until later.. i THINK
+    float randomAngle = getRandomFloat();
+    float randomHeight = getRandomFloat();
+    float azimuthalAngle = (2 * M_PI) * randomAngle; // angle around circle
+
+    float cosineTheta = sqrt(1 - randomHeight); // how "up" you are
+    float sineTheta = sqrt(randomHeight); // how "out" you are 
+
+    // Polar to Cartesian coords
+    float x = cos(azimuthalAngle) * sineTheta;
+    float y = sin(azimuthalAngle) * sineTheta;
+    float z = cosineTheta; 
+    return vec3(x, y, z);
 }
