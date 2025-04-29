@@ -47,9 +47,11 @@ public:
         lights.push_back(light);
     }
 
-    // void buildBVH() {
-    //     bvh = std::make_shared<BVH>(objects);
-    // }
+    void buildBVH() {
+        if (!objects.empty()) {
+            bvh = std::make_shared<BVH>(objects);
+        }
+    }
     void prepareLights();
     vec3 castRay(const Ray& ray, int depth) const;
     Hit closestIntersection(const Ray& ray) const;
