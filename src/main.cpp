@@ -101,7 +101,7 @@ int main() {
     scene.addObject(sphere2);
 
     // ==== Render! ====
-    PathTracer tracer(512, 512, 100, 5); // width, height, spp, max_depth
+    PathTracer tracer(512, 512, 2000, 8); // width, height, spp, max_depth
     tracer.render(scene);
 
     return 0;

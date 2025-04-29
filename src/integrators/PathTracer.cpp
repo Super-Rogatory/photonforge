@@ -116,6 +116,7 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     // === End Russian Roulette Termination ===
     
     vec3 incoming = renderPathTracer(scene, depth + 1, new_ray);
+    incoming = componentwise_min(incoming, vec3(10.0));
     vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
 
      // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
