@@ -1,13 +1,17 @@
 #include "Scene.h"
+#include <limits>
 
-Hit Scene::closestIntersection(const Ray &ray) const {
+Hit Scene::closestIntersection(const Ray &ray) const
+{
     Hit closest_hit({nullptr, 0, 0});
-    double min_t = std::numeric_limits<double>::max(); 
+    double min_t = std::numeric_limits<double>::max();
     // each object is a shared pointer to an Object, type std::shared_ptr<Object>
-    for (const auto &obj : objects) {
+    for (const auto &obj : objects)
+    {
         // recall .intersect() is a virtual function in Object class, polymorphic behavior :D
         Hit hit = obj->intersect(ray); // let the object do the intersection test, handling multiple parts, etc.
-        if (hit.object && hit.t >= small_t && hit.t < min_t) {
+        if (hit.object && hit.t >= small_t && hit.t < min_t)
+        {
             min_t = hit.t;
             closest_hit = hit;
         }
@@ -15,11 +19,13 @@ Hit Scene::closestIntersection(const Ray &ray) const {
     return closest_hit;
 }
 
-vec3 Scene::castRay(const Ray &ray, int depth) const {
+vec3 Scene::castRay(const Ray &ray, int depth) const
+{
     Hit closest_hit = closestIntersection(ray);
     vec3 color(0.0, 0.0, 0.0); // default color is black
 
-    if(!closest_hit.object) {
+    if (!closest_hit.object)
+    {
         return color; // no hit, return black
     }
 
@@ -31,12 +37,14 @@ vec3 Scene::castRay(const Ray &ray, int depth) const {
     return color;
 }
 
-void Scene::prepareLights() {
+void Scene::prepareLights()
+{
     // reset light importance vars
     light_importance.clear();
     total_light_importance = 0.0;
     // loop through all lights and compute their importance
-    for (const auto &light : lights) {
+    for (const auto &light : lights)
+    {
         double power = light->color.magnitude() * light->brightness;
         light_importance.push_back(power);
         total_light_importance += power;
