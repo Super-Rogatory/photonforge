@@ -29,7 +29,7 @@ void PathTracer::render(Scene &scene)
     // Build the photon map if needed
     if (renderMode == PHOTON_MAPPING || renderMode == HYBRID)
     {
-        int numPhotons = 10000;
+        int numPhotons = 5000;
         photonMap.buildPhotonMap(scene, numPhotons);
     }
 
@@ -263,7 +263,7 @@ vec3 PathTracer::renderHybrid(Scene &scene, int depth, Ray ray)
     if (depth == 0)
     {
         // Use photon map for first bounce indirect lighting
-        indirect_light = photonMap.estimateRadiance(hit_point, normal, 0.75, 200);
+        indirect_light = photonMap.estimateRadiance(hit_point, normal, 1.5, 400);
     }
     else
     {

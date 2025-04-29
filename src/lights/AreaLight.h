@@ -45,11 +45,11 @@ public:
     {
         // Random position on the light surface
         static thread_local std::mt19937 gen(std::random_device{}());
-        static thread_local std::uniform_real_distribution<double> dist(0.0, 1.0);
-        double u = dist(gen) - 0.5;
-        double v = dist(gen) - 0.5;
+        static thread_local std::uniform_real_distribution<double> dist(-0.5, 0.5);
+        double u = dist(gen);
+        double v = dist(gen);
         // Calculate point on light
-        vec3 lightPoint = position + u_axis * ((u - 0.5) * width) + v_axis * ((v - 0.5) * height);
+        vec3 lightPoint = position + u_axis * (u * width) + v_axis * (v * height);
 
         // Sample direction in the hemisphere (cosine-weighted)
         double r1 = dist(gen);

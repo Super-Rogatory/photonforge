@@ -52,7 +52,7 @@ public:
         for (const auto &light : scene.lights)
         {
             // Calculate initial power for each photon from this light
-            vec3 photonPower = light->color * light->brightness / photonsPerLight;
+            vec3 photonPower = light->color * light->brightness * 10.0 / photonsPerLight; // Increase power scale
 
             // THIS IS WHERE emitPhoton() IS CALLED
             for (int i = 0; i < photonsPerLight; i++)
