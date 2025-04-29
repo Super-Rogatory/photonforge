@@ -13,7 +13,7 @@ TriangleMesh::TriangleMesh(const std::vector<vec3>& vertices, const std::vector<
 
     std::vector<std::shared_ptr<Object>> triangleObjects;
     for (size_t i = 0; i < triangles.size(); i++) {
-        triangleObjects.push_back(std::make_shared<Triangle>(triangles[i]));
+        triangleObjects.push_back(std::make_shared<Triangle>(std::move(triangles[i])));
     }
     
     bvh = std::make_unique<BVH>(triangleObjects);
