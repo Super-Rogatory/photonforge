@@ -1,9 +1,9 @@
 #include "Scene.h"
 
 Hit Scene::closestIntersection(const Ray& ray) const {
-    if (bvh) {
-        return bvh->intersect(ray);
-    }
+    // if (bvh) {
+    //     return bvh->intersect(ray);
+    // }
     // fallback to brute-force (if BVH isn't built)
     Hit closest_hit{nullptr, 0, 0};
     double min_t = std::numeric_limits<double>::max();

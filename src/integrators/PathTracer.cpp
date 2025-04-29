@@ -2,34 +2,60 @@
 #include "utils/ImageWriter.h"
 #include <math.h>
 #include <random>
+#include <thread>
+#include <atomic>
+
+void PathTracer::initializeHierarchy(Scene& scene) {
+    scene.buildBVH(); // or whatever function your Scene class uses to build the BVH
+}
 
 // logic for rendering the scene, tightly coupled with scene class
-void PathTracer::render(Scene &scene) {
+void PathTracer::render(Scene& scene) {
+    initializeHierarchy(scene); // Make sure BVH ready
+
     int total_pixels = image_width * image_height;
-    int pixel_count = 0;
-    if (!scene.bvh) 
-        scene.buildBVH();
-    
-    for (int y = 0; y < image_height; ++y) {
-        for (int x = 0; x < image_width; ++x) {
-            vec3 color(0);
-            for (int s = 0; s < spp; ++s) {
-                int corrected_y = image_height - 1 - y;
-                Ray ray = scene.camera->generateRay(ivec2(x, corrected_y));                
-                color += renderPathTracer(scene, 0, ray);
+    int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> workers;
+    std::atomic<int> pixels_rendered(0); // <-- atomic counter for all threads
+
+    auto renderChunk = [&](int start_y, int end_y) {
+        for (int y = start_y; y < end_y; ++y) {
+            for (int x = 0; x < image_width; ++x) {
+                vec3 color(0);
+                for (int s = 0; s < spp; ++s) {
+                    int corrected_y = image_height - 1 - y;
+                    Ray ray = scene.camera->generateRay(ivec2(x, corrected_y));
+                    color += renderPathTracer(scene, 0, ray);
+                }
+                setPixel(ivec2(x, y), color / static_cast<double>(spp));
+                ++pixels_rendered; // atomic increment
             }
-            setPixel(ivec2(x, y), color / static_cast<double>(spp));
-            ++pixel_count;
         }
-        if (y % 10 == 0 || y == image_height - 1) { 
-            printProgress(pixel_count, total_pixels);
-        }
+    };
+
+    // start threads
+    int chunk_size = image_height / num_threads;
+    for (int i = 0; i < num_threads; ++i) {
+        int start_y = i * chunk_size;
+        int end_y = (i == num_threads - 1) ? image_height : (i + 1) * chunk_size;
+        workers.emplace_back(renderChunk, start_y, end_y);
     }
-    if(pixel_count == total_pixels) {
-        std::cout << std::endl;
-        std::cout << "Rendering complete!" << std::endl;
-        writeImage("../output.ppm", "ppm");
+
+    // progress monitor loop (run on main thread)
+    while (pixels_rendered < total_pixels) {
+        printProgress(pixels_rendered, total_pixels);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // update every 0.2s
     }
+
+    // join all workers
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    // final print
+    printProgress(total_pixels, total_pixels);
+    std::cout << std::endl << "Rendering complete!" << std::endl;
+    writeImage("../output.ppm", "ppm");
 }
 
 // transform local direction to world space using the normal vector
@@ -95,6 +121,7 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     if (hit.object == nullptr) return vec3(0);
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
+    vec3 view_dir = -ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);
 
     vec3 emitted = hit.object->material_shader->emitted(); // will be 0 unless emissive
@@ -127,7 +154,7 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     }
 
     // compute the contribution of the light source to the hit point
-    vec3 light_contribution = nextEventEstimation(scene, hit_point, normal, new_direction, *hit.object->material_shader);
+    vec3 light_contribution = nextEventEstimation(scene, hit_point, normal, view_dir, *hit.object->material_shader);
     return emitted + light_contribution + (brdf * incoming * cos_theta / pdf);
 }
 
