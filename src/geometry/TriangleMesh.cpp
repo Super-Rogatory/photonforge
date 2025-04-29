@@ -11,7 +11,13 @@ TriangleMesh::TriangleMesh(const std::vector<vec3>& vertices, const std::vector<
         triangles.push_back(Triangle(v0, v1, v2, material));
     }
 
-    bvh = new BVH(); //need to make bvh, idk what it will take in yet
+    std::vector<std::shared_ptr<Object>> triangleObjects;
+    for (size_t i = 0; i < triangles.size(); i++) {
+        triangleObjects.push_back(std::make_shared<Triangle>(triangles[i]));
+    }
+    
+    bvh = std::make_unique<BVH>(triangleObjects);
+
 }
 
 AABB TriangleMesh::getBoundingBox() const
@@ -25,17 +31,17 @@ AABB TriangleMesh::getBoundingBox() const
     return box;
 }
 
-// need to add bvh part
 Hit TriangleMesh::intersect(const Ray& ray) const 
 {
-    Hit closestHit;
-    closestHit.t = std::numeric_limits<double>::infinity();
+    // Hit closestHit;
+    // closestHit.t = std::numeric_limits<double>::infinity();
 
-    for(int i=0; i < triangles.size(); i++) {
-        Hit hit = triangles[i].intersect(ray);
-        if (hit.t < closestHit.t) {
-            closestHit = hit;
-        }
-    }
-    return closestHit;
+    // for(int i=0; i < triangles.size(); i++) {
+    //     Hit hit = triangles[i].intersect(ray);
+    //     if (hit.t < closestHit.t) {
+    //         closestHit = hit;
+    //     }
+    // }
+    // return closestHit;
+    return bvh->intersect(ray);
 }
