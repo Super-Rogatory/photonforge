@@ -82,14 +82,14 @@ void BVH::BuildBVH(int nodeIndex, int start, int end)
     }
     
     int numObjects = end - start;
-    std::cout << "[BVH] Building node " << nodeIndex << " with " << numObjects << " objects\n";
+    // std::cout << "[BVH] Building node " << nodeIndex << " with " << numObjects << " objects\n";
 
     if (numObjects <= MAX_NUM_OBJECTS) {
         currNode.objectStartIndex = start;
         currNode.objectCount = numObjects;
         currNode.leftChildIndex = -1;
         currNode.rightChildIndex = -1;
-        std::cout << "[BVH] Leaf node " << nodeIndex << ": start=" << start << ", count=" << numObjects << "\n";
+        // std::cout << "[BVH] Leaf node " << nodeIndex << ": start=" << start << ", count=" << numObjects << "\n";
         return;
     }
     
@@ -108,7 +108,7 @@ void BVH::BuildBVH(int nodeIndex, int start, int end)
     // Build left child
     int leftChildIndex = nodes.size();
     nodes.push_back(BVHNode());
-    std::cout << leftChildIndex << " " << start << " " << mid << std::endl;
+    // std::cout << leftChildIndex << " " << start << " " << mid << std::endl;
     BuildBVH(leftChildIndex, start, mid);
 
     // Build right child
