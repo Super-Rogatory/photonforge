@@ -110,17 +110,17 @@ void SceneLoader(Scene &scene, const char *test_file)
         {
             // auto areaLight = std::make_shared<AreaLight>(vec3(2.0, 5.0, 0.0), vec3(1.0, 1.0, 1.0), 12.0);
             auto areaLight = std::make_shared<AreaLight>(
-                vec3(2.0, 5.0, 0.0),  // Position - center of the light
-                vec3(0.0, -1.0, 0.0), // Normal - pointing downward
-                4.0,                  // Width
-                4.0,                  // Height
-                vec3(1.0, 1.0, 1.0),  // Color (white)
-                30.0                  // Brightness
+                vec3(-2.0, 3.0, -7.0),             // Slightly to the left and higher
+                vec3(0.2, -0.3, 1.0).normalized(), // Angled toward scene center
+                5.0,                               // Width
+                4.0,                               // Height
+                vec3(1.0, 1.0, 1.0),               // Color (white)
+                20.0                               // Brightness
             );
             scene.addLight(areaLight);
             scene.prepareLights();
             PathTracer tracer(std::stoi(result[1]), std::stoi(result[2]), std::stod(result[3]), std::stod(result[4]));
-            tracer.setRenderMode(HYBRID);
+            tracer.setRenderMode(PHOTON_MAPPING);
             tracer.render(scene);
         }
     }
