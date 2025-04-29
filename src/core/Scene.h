@@ -49,7 +49,7 @@ public:
 
     void buildBVH() {
         if (!objects.empty()) {
-            bvh = std::make_shared<BVH>(objects);
+            bvh = std::make_unique<BVH>(objects);
         }
     }
     void prepareLights();

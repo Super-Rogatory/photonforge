@@ -1,24 +1,21 @@
 #include "TriangleMesh.h"
 
-TriangleMesh::TriangleMesh(const std::vector<vec3>& vertices, const std::vector<int>& indices, std::shared_ptr<Material> material) : vertices(vertices)
+TriangleMesh::TriangleMesh(const std::vector<vec3>& vertices, const std::vector<int>& indices, std::shared_ptr<Material> material)
+    : vertices(vertices)
 {
     // loop through in 3s and create triangles
     for (int i = 0; i < indices.size(); i += 3) 
     {
         vec3 v0 = vertices[indices[i]];
-        vec3 v1 = vertices[indices[i+1]];
-        vec3 v2 = vertices[indices[i+2]];
-        triangles.push_back(Triangle(v0, v1, v2, material));
+        vec3 v1 = vertices[indices[i + 1]];
+        vec3 v2 = vertices[indices[i + 2]];
+
+        triangleObjects.push_back(std::make_shared<Triangle>(v0, v1, v2, material));
     }
 
-    std::vector<std::shared_ptr<Object>> triangleObjects;
-    for (size_t i = 0; i < triangles.size(); i++) {
-        triangleObjects.push_back(std::make_shared<Triangle>(std::move(triangles[i])));
-    }
-    
     bvh = std::make_unique<BVH>(triangleObjects);
-
 }
+
 
 AABB TriangleMesh::getBoundingBox() const
 {

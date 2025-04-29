@@ -1,12 +1,14 @@
 #include "Scene.h"
 
-Hit Scene::closestIntersection(const Ray &ray) const {
-    Hit closest_hit({nullptr, 0, 0});
-    double min_t = std::numeric_limits<double>::max(); 
-    // each object is a shared pointer to an Object, type std::shared_ptr<Object>
-    for (const auto &obj : objects) {
-        // recall .intersect() is a virtual function in Object class, polymorphic behavior :D
-        Hit hit = obj->intersect(ray); // let the object do the intersection test, handling multiple parts, etc.
+Hit Scene::closestIntersection(const Ray& ray) const {
+    if (bvh) {
+        return bvh->intersect(ray);
+    }
+    // fallback to brute-force (if BVH isn't built)
+    Hit closest_hit{nullptr, 0, 0};
+    double min_t = std::numeric_limits<double>::max();
+    for (const auto& obj : objects) {
+        Hit hit = obj->intersect(ray);
         if (hit.object && hit.t >= small_t && hit.t < min_t) {
             min_t = hit.t;
             closest_hit = hit;

@@ -16,6 +16,7 @@ class TriangleMesh : public Object {
     private:
         std::vector<vec3> vertices;
         std::vector<Triangle> triangles;
+        std::vector<std::shared_ptr<Object>> triangleObjects;
         std::unique_ptr<BVH> bvh;
 };
 #endif

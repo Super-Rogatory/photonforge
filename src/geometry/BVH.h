@@ -6,13 +6,19 @@
 #include "../geometry/Object.h"
 #include "../geometry/Hit.h"
 #include "../core/Ray.h"
+#include <vector>
+#include <algorithm>
 
 struct BVHNode {
     AABB boundingBox;
     int objectStartIndex;
     int objectCount;
-    int rightChildIndex; // leaf nodes is 0
+    int leftChildIndex;   // NEW
+    int rightChildIndex;  // existing
+
+    bool isLeaf() const { return leftChildIndex == -1 && rightChildIndex == -1; } // updated leaf check
 };
+
 
 class BVH {
     public:
@@ -30,4 +36,5 @@ class BVH {
         void BuildBVH(int nodeIndex, int start, int end); 
         void IntersectNode(int nodeIndex, const Ray& ray, Hit& closestHit, double t_min, double& t_max) const; 
 };
+
 #endif

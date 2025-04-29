@@ -7,7 +7,9 @@
 void PathTracer::render(Scene &scene) {
     int total_pixels = image_width * image_height;
     int pixel_count = 0;
-
+    if (!scene.bvh) 
+        scene.buildBVH();
+    
     for (int y = 0; y < image_height; ++y) {
         for (int x = 0; x < image_width; ++x) {
             vec3 color(0);
@@ -131,7 +133,7 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
 
 void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
     int index = pixel[1] * image_width + pixel[0];
-    framebuffer[index] = color;
+    framebuffer[index] = componentwise_min(color, vec3(1.0));
 }
 
 void PathTracer::writeImage(const std::string &filename, const std::string &format) {
