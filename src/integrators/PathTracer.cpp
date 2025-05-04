@@ -14,7 +14,7 @@ void PathTracer::render(Scene& scene) {
     initializeHierarchy(scene); // Make sure BVH ready
 
     int total_pixels = image_width * image_height;
-    int num_threads = 1;
+    int num_threads = std::thread::hardware_concurrency(); // get number of threads supported by the system
     std::vector<std::thread> workers;
     std::atomic<int> pixels_rendered(0); // <-- atomic counter for all threads
 
