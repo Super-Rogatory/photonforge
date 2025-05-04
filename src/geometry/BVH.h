@@ -29,9 +29,8 @@ private:
     };
 
     std::shared_ptr<BVHNode> root;
-
     std::shared_ptr<BVHNode> build(std::vector<std::shared_ptr<Object>>& objects, int depth = 0);
-    Hit traverse(const BVHNode* node, const Ray& ray) const;
+    Hit traverse(const BVHNode* node, const Ray& ray, double t_min, double t_max) const;
 };
 
 

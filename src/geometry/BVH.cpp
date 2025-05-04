@@ -48,37 +48,50 @@ std::shared_ptr<BVH::BVHNode> BVH::build(std::vector<std::shared_ptr<Object>>& o
 
 
 Hit BVH::intersect(const Ray& ray) const {
-    return traverse(root.get(), ray);
+    return traverse(root.get(), ray, small_t, std::numeric_limits<double>::max());
 }
 
 
-Hit BVH::traverse(const BVHNode* node, const Ray& ray) const {
-    if (!node->bbox.intersect(ray, small_t, std::numeric_limits<double>::max()))
-        return Hit{nullptr, 0, 0};
+Hit BVH::traverse(const BVHNode* node, const Ray& ray, double tmin, double tmax) const {
+    double t_near_left, t_near_right;
+    bool hit_left = node->left && node->left->bbox.intersect(ray, tmin, tmax);
+    bool hit_right = node->right && node->right->bbox.intersect(ray, tmin, tmax);
 
+    if (!hit_left && !hit_right)
+        return {nullptr, 0, 0};
 
-    if (node->isLeaf()) {
-        Hit closest_hit{nullptr, 0, 0};
-        double min_t = std::numeric_limits<double>::max();
-        for (const auto& obj : node->primitives) {
-            Hit hit = obj->intersect(ray);
-            if (hit.object && hit.t >= small_t && hit.t < min_t) {
-                min_t = hit.t;
-                closest_hit = hit;
-            }
+    const BVHNode* first = nullptr;
+    const BVHNode* second = nullptr;
+
+    if (hit_left && hit_right) {
+        if (t_near_left < t_near_right) {
+            first = node->left.get();
+            second = node->right.get();
+        } else {
+            first = node->right.get();
+            second = node->left.get();
         }
-        return closest_hit;
+    } else if (hit_left) {
+        first = node->left.get();
+    } else {
+        first = node->right.get();
     }
 
-
-    Hit left_hit = traverse(node->left.get(), ray);
-    Hit right_hit = traverse(node->right.get(), ray);
-
-
-    if (left_hit.object && (!right_hit.object || left_hit.t < right_hit.t)) {
-        return left_hit;
+    Hit hit1 = traverse(first, ray, tmin, tmax);
+    if (hit1.object) {
+        tmax = hit1.t; // tighten the range for the second child
     }
-    return right_hit;
+
+    // Only check second if it exists and the first didn't hit anything closer
+    if (second) {
+        Hit hit2 = traverse(second, ray, tmin, tmax);
+        if (hit2.object && (!hit1.object || hit2.t < hit1.t))
+            return hit2;
+    }
+
+    return hit1;
 }
+
+
 
 

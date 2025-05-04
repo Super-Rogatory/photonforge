@@ -14,7 +14,7 @@ void PathTracer::render(Scene& scene) {
     initializeHierarchy(scene); // Make sure BVH ready
 
     int total_pixels = image_width * image_height;
-    int num_threads = std::thread::hardware_concurrency();
+    int num_threads = 1;
     std::vector<std::thread> workers;
     std::atomic<int> pixels_rendered(0); // <-- atomic counter for all threads
 
@@ -23,8 +23,7 @@ void PathTracer::render(Scene& scene) {
             for (int x = 0; x < image_width; ++x) {
                 vec3 color(0);
                 for (int s = 0; s < spp; ++s) {
-                    int corrected_y = image_height - 1 - y;
-                    Ray ray = scene.camera->generateRay(ivec2(x, corrected_y));
+                    Ray ray = scene.camera->generateRay(ivec2(x, y));
                     color += renderPathTracer(scene, 0, ray);
                 }
                 setPixel(ivec2(x, y), color / static_cast<double>(spp));
@@ -108,20 +107,21 @@ vec3 PathTracer::nextEventEstimation(Scene &scene, const vec3 &hit_point, const 
     vec3 emitted = light->emittedLight(light_dir);
     double cos_theta = std::max(dot(light_dir, normal), 0.0);
 
-    vec3 brdf = mat.shade(shadow_ray, hit_point, normal, scene) / pi; // lambertian reflectance
+    vec3 brdf = mat.shade(shadow_ray, hit_point, normal, scene); // lambertian reflectance
     double pdf_light = scene.light_importance[selected_light_index] / scene.total_light_importance;
 
     return emitted * brdf * cos_theta / pdf_light;
 }
 
 // set up initial view ray and call the scene to cast the ray
-vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
+vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray)
+{
     Hit hit = scene.closestIntersection(ray);
 
-    if (hit.object == nullptr) return vec3(0);
+    if (hit.object == nullptr)
+        return vec3(0);
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
-    vec3 view_dir = -ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);
 
     vec3 emitted = hit.object->material_shader->emitted(); // will be 0 unless emissive
@@ -129,38 +129,40 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     vec3 local_dir = sampler.getCosineWeightedHemisphereDirection();
     vec3 new_direction = transformToWorld(local_dir, normal);
     Ray new_ray(hit_point + small_t * new_direction, new_direction);
-    
+
     float cos_theta = std::max(dot(new_direction, normal), 0.0);
     float pdf = cos_theta / M_PI;
-    
-    if (pdf < 1e-6f) return emitted;
-    
+
+    if (pdf < 1e-6f)
+        return emitted;
+
     // === Russian Roulette Termination ===
     // terminate paths in Monte Carlo ray tracing by probabilistically deciding whether to continue tracing a path or terminate it.
     // ^ Saves computation time and memory!
     const double rr_prob = 0.8;
-    if (depth >= 3 && sampler.getRandomFloat() > rr_prob) {
+    if (depth >= 3 && sampler.getRandomFloat() > rr_prob)
+    {
         return emitted;
     }
     // === End Russian Roulette Termination ===
-    
+
     vec3 incoming = renderPathTracer(scene, depth + 1, new_ray);
-    incoming = componentwise_min(incoming, vec3(10.0));
     vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
 
-     // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
-     if (depth >= 3) {
+    // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
+    if (depth >= 3)
+    {
         incoming /= rr_prob;
     }
 
     // compute the contribution of the light source to the hit point
-    vec3 light_contribution = nextEventEstimation(scene, hit_point, normal, view_dir, *hit.object->material_shader);
+    vec3 light_contribution = nextEventEstimation(scene, hit_point, normal, new_direction, *hit.object->material_shader);
     return emitted + light_contribution + (brdf * incoming * cos_theta / pdf);
 }
 
 void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
     int index = pixel[1] * image_width + pixel[0];
-    framebuffer[index] = componentwise_min(color, vec3(1.0));
+    framebuffer[index] = color;
 }
 
 void PathTracer::writeImage(const std::string &filename, const std::string &format) {
