@@ -64,5 +64,8 @@ AABB Triangle::getBoundingBox() const {
     box = box+v1;
     box = box+v2;
 
+    box.min -= vec3(small_t);
+    box.max += vec3(small_t);
+    
     return box;
 }

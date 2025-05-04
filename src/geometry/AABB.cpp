@@ -4,7 +4,9 @@
 // checks if the ray intersects the AABB box.
 bool AABB::intersect(const Ray &ray, double t_min, double t_max) const {
     for (int i = 0; i < 3; ++i) {
-        double invD = 1.0 / ray.direction[i];
+        double invD = (std::abs(ray.direction[i]) > small_t) 
+                      ? 1.0 / ray.direction[i] 
+                      : std::numeric_limits<double>::infinity();
         double t1 = (min[i] - ray.origin[i]) * invD;
         double t2 = (max[i] - ray.origin[i]) * invD;
 
@@ -14,7 +16,7 @@ bool AABB::intersect(const Ray &ray, double t_min, double t_max) const {
         t_min = std::max(t1, t_min);
         t_max = std::min(t2, t_max);            
 
-        if (t_max <= t_min)
+        if (t_max < t_min)
             return false;
     }
     return true;

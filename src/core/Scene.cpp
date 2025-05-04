@@ -7,7 +7,7 @@ Hit Scene::closestIntersection(const Ray& ray) const {
     // fallback to brute-force (if BVH isn't built)
     Hit closest_hit{nullptr, 0, 0};
     double min_t = std::numeric_limits<double>::max();
-    for (const auto& obj : objects) {
+    for (const auto &obj : objects) {
         Hit hit = obj->intersect(ray);
         if (hit.object && hit.t >= small_t && hit.t < min_t) {
             min_t = hit.t;

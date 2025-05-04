@@ -2,34 +2,59 @@
 #include "utils/ImageWriter.h"
 #include <math.h>
 #include <random>
+#include <thread>
+#include <atomic>
+
+void PathTracer::initializeHierarchy(Scene& scene) {
+    scene.buildBVH(); // or whatever function your Scene class uses to build the BVH
+}
 
 // logic for rendering the scene, tightly coupled with scene class
-void PathTracer::render(Scene &scene) {
+void PathTracer::render(Scene& scene) {
+    initializeHierarchy(scene); // Make sure BVH ready
+
     int total_pixels = image_width * image_height;
-    int pixel_count = 0;
-    if (!scene.bvh) 
-        scene.buildBVH();
-    
-    for (int y = 0; y < image_height; ++y) {
-        for (int x = 0; x < image_width; ++x) {
-            vec3 color(0);
-            for (int s = 0; s < spp; ++s) {
-                int corrected_y = image_height - 1 - y;
-                Ray ray = scene.camera->generateRay(ivec2(x, corrected_y));                
-                color += renderPathTracer(scene, 0, ray);
+    int num_threads = std::thread::hardware_concurrency(); // get number of threads supported by the system
+    std::vector<std::thread> workers;
+    std::atomic<int> pixels_rendered(0); // <-- atomic counter for all threads
+
+    auto renderChunk = [&](int start_y, int end_y) {
+        for (int y = start_y; y < end_y; ++y) {
+            for (int x = 0; x < image_width; ++x) {
+                vec3 color(0);
+                for (int s = 0; s < spp; ++s) {
+                    Ray ray = scene.camera->generateRay(ivec2(x, y));
+                    color += renderPathTracer(scene, 0, ray);
+                }
+                setPixel(ivec2(x, y), color / static_cast<double>(spp));
+                ++pixels_rendered; // atomic increment
             }
-            setPixel(ivec2(x, y), color / static_cast<double>(spp));
-            ++pixel_count;
         }
-        if (y % 10 == 0 || y == image_height - 1) { 
-            printProgress(pixel_count, total_pixels);
-        }
+    };
+
+    // start threads
+    int chunk_size = image_height / num_threads;
+    for (int i = 0; i < num_threads; ++i) {
+        int start_y = i * chunk_size;
+        int end_y = (i == num_threads - 1) ? image_height : (i + 1) * chunk_size;
+        workers.emplace_back(renderChunk, start_y, end_y);
     }
-    if(pixel_count == total_pixels) {
-        std::cout << std::endl;
-        std::cout << "Rendering complete!" << std::endl;
-        writeImage("../output.ppm", "ppm");
+
+    // progress monitor loop (run on main thread)
+    while (pixels_rendered < total_pixels) {
+        printProgress(pixels_rendered, total_pixels);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // update every 0.2s
     }
+
+    // join all workers
+    for (auto& worker : workers) {
+        worker.join();
+    }
+
+    // final print
+    printProgress(total_pixels, total_pixels);
+    std::cout << std::endl << "Rendering complete!" << std::endl;
+    writeImage("../output.ppm", "ppm");
 }
 
 // transform local direction to world space using the normal vector
@@ -82,17 +107,23 @@ vec3 PathTracer::nextEventEstimation(Scene &scene, const vec3 &hit_point, const 
     vec3 emitted = light->emittedLight(light_dir);
     double cos_theta = std::max(dot(light_dir, normal), 0.0);
 
-    vec3 brdf = mat.shade(shadow_ray, hit_point, normal, scene) / pi; // lambertian reflectance
+    vec3 brdf = mat.shade(shadow_ray, hit_point, normal, scene); // lambertian reflectance
     double pdf_light = scene.light_importance[selected_light_index] / scene.total_light_importance;
 
     return emitted * brdf * cos_theta / pdf_light;
 }
 
 // set up initial view ray and call the scene to cast the ray
-vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
+vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray)
+{
     Hit hit = scene.closestIntersection(ray);
 
-    if (hit.object == nullptr) return vec3(0);
+    if (hit.object == nullptr) {
+        if (scene.environment_light) {
+            return scene.environment_light->emittedLight(ray.direction);
+        }
+        return vec3(0);  
+    }
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);
@@ -102,27 +133,29 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
     vec3 local_dir = sampler.getCosineWeightedHemisphereDirection();
     vec3 new_direction = transformToWorld(local_dir, normal);
     Ray new_ray(hit_point + small_t * new_direction, new_direction);
-    
+
     float cos_theta = std::max(dot(new_direction, normal), 0.0);
     float pdf = cos_theta / M_PI;
-    
-    if (pdf < 1e-6f) return emitted;
-    
+
+    if (pdf < 1e-6f)
+        return emitted;
+
     // === Russian Roulette Termination ===
     // terminate paths in Monte Carlo ray tracing by probabilistically deciding whether to continue tracing a path or terminate it.
     // ^ Saves computation time and memory!
     const double rr_prob = 0.8;
-    if (depth >= 3 && sampler.getRandomFloat() > rr_prob) {
+    if (depth >= 3 && sampler.getRandomFloat() > rr_prob)
+    {
         return emitted;
     }
     // === End Russian Roulette Termination ===
-    
+
     vec3 incoming = renderPathTracer(scene, depth + 1, new_ray);
-    incoming = componentwise_min(incoming, vec3(10.0));
     vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
 
-     // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
-     if (depth >= 3) {
+    // if we applied Russian Roulette, we need to scale the incoming light by the probability of survival to prevent bias
+    if (depth >= 3)
+    {
         incoming /= rr_prob;
     }
 
@@ -133,7 +166,7 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray) {
 
 void PathTracer::setPixel(const ivec2& pixel, const vec3& color) {
     int index = pixel[1] * image_width + pixel[0];
-    framebuffer[index] = componentwise_min(color, vec3(1.0));
+    framebuffer[index] = color;
 }
 
 void PathTracer::writeImage(const std::string &filename, const std::string &format) {

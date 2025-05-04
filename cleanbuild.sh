@@ -15,4 +15,9 @@ cmake ..
 echo "Building project..."
 make -j8
 
+# Copy the backup file to the build directory and rename it
+cd ../
+cp backup.txt build/backup.txt
+mv build/backup.txt build/test.txt
+
 echo "Done!"

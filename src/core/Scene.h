@@ -8,6 +8,7 @@
 #include "geometry/Object.h"
 #include "geometry/BVH.h"
 #include "lights/Light.h"
+#include "lights/EnvironmentLight.h"
 #include "core/Camera.h"
 
 class Light;
@@ -21,6 +22,7 @@ public:
     std::unique_ptr<Camera> camera;                     // camera for the scene
     std::vector<std::shared_ptr<Object>> objects;       // scene geometry
     std::vector<std::shared_ptr<Light>> lights;         // emissive sources
+    std::shared_ptr<EnvironmentLight> environment_light = nullptr;
     std::shared_ptr<BVH> bvh;                           // acceleration structure
     std::vector<double> light_importance; // importance of each light source, for next event estimation
 
