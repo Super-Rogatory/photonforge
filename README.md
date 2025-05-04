@@ -22,11 +22,11 @@ PhotonForge is a physically-based Monte Carlo renderer written in C++. It suppor
 src/
 ├── main.cpp                  # Entry point
 ├── core/                     # Math, ray, camera, scene
-├── geometry/                 # Spheres, triangles, KD-tree
+├── geometry/                 # Spheres, triangles, KD-tree, BVH
 ├── materials/                # Core BRDFs (diffuse, specular, Cook-Torrance)
 ├── integrators/              # PathTracer, PhotonMapper, Hybrid
 ├── lights/                   # Light sources
-└── utils/                    # Scene loading, BVH, image writing, logging
+└── utils/                    # Scene loading, image writing, logging
 ```
 ---
 

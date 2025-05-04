@@ -16,8 +16,6 @@ public:
     AABB operator+(const vec3 &point) const;
     // create a box to which points can be correctly added using '+' operator
     void makeEmpty();
-    // return the surface area of the box
-    double surfaceArea() const;
     // return center point of the box
     vec3 center() const;
 };
