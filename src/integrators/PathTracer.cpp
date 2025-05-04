@@ -118,8 +118,12 @@ vec3 PathTracer::renderPathTracer(Scene &scene, int depth, Ray ray)
 {
     Hit hit = scene.closestIntersection(ray);
 
-    if (hit.object == nullptr)
-        return vec3(0);
+    if (hit.object == nullptr) {
+        if (scene.environment_light) {
+            return scene.environment_light->emittedLight(ray.direction);
+        }
+        return vec3(0);  
+    }
 
     vec3 hit_point = ray.origin + hit.t * ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);

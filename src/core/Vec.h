@@ -103,6 +103,15 @@ vec<T,d> componentwise_min(const vec<T,d>& a, const vec<T,d>& b)
 }
 
 template <class T, int n>
+vec<T, n> clamp(const vec<T, n>& v, T min_val, T max_val) {
+    vec<T, n> result;
+    for (int i = 0; i < n; ++i) {
+        result[i] = std::max(min_val, std::min(v[i], max_val));
+    }
+    return result;
+}
+
+template <class T, int n>
 std::ostream& operator << (std::ostream& out, const vec<T,n> & u)
 {
     for(int i = 0; i < n; i++)

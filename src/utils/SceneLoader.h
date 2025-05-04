@@ -121,6 +121,14 @@ void SceneLoader(Scene& scene, const char* test_file)
         
             auto light = std::make_shared<Triangle>(p0, p1, p2, std::make_shared<EmissiveMaterial>(emission));
             scene.addObject(light);
+        }
+        else if (result[0] == "environmentlight") {
+            vec3 color(std::stod(result[1]), std::stod(result[2]), std::stod(result[3]));
+            double brightness = std::stod(result[4]);
+            // EnvirnmentLight(color, brightness, true) is a uniform light
+            // EnvirnmentLight(color, brightness, false) is a non-uniform light
+            auto env = std::make_shared<EnvironmentLight>(color, brightness, false);
+            scene.environment_light = env;
         }        
     }
 }
