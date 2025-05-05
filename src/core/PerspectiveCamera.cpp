@@ -45,7 +45,7 @@ vec2 PerspectiveCamera::cellCenter(const ivec2& index) const
 vec3 PerspectiveCamera::worldPosition(const ivec2& pixel_index) const
 {
     vec3 result;
-    result = film_position + (horizontal_vector * cellCenter(pixel_index)[0]) - (vertical_vector * cellCenter(pixel_index)[1]);
+    result = film_position + (horizontal_vector * cellCenter(pixel_index)[0]) + (vertical_vector * cellCenter(pixel_index)[1]);
     return result;
 }
 

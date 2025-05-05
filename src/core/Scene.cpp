@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <limits>
 
 Hit Scene::closestIntersection(const Ray& ray) const {
     if (bvh) {
@@ -17,11 +18,13 @@ Hit Scene::closestIntersection(const Ray& ray) const {
     return closest_hit;
 }
 
-vec3 Scene::castRay(const Ray &ray, int depth) const {
+vec3 Scene::castRay(const Ray &ray, int depth) const
+{
     Hit closest_hit = closestIntersection(ray);
     vec3 color(0.0, 0.0, 0.0); // default color is black
 
-    if(!closest_hit.object) {
+    if (!closest_hit.object)
+    {
         return color; // no hit, return black
     }
 
@@ -33,12 +36,14 @@ vec3 Scene::castRay(const Ray &ray, int depth) const {
     return color;
 }
 
-void Scene::prepareLights() {
+void Scene::prepareLights()
+{
     // reset light importance vars
     light_importance.clear();
     total_light_importance = 0.0;
     // loop through all lights and compute their importance
-    for (const auto &light : lights) {
+    for (const auto &light : lights)
+    {
         double power = light->color.magnitude() * light->brightness;
         light_importance.push_back(power);
         total_light_importance += power;
