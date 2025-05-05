@@ -12,7 +12,6 @@ PhotonForge is a physically-based Monte Carlo renderer written in C++. It suppor
 - ✅ Physically-based materials: Diffuse, Specular, Cook-Torrance
 - ✅ Acceleration structures (BVH, KD-Tree)
 - ✅ Outputs `.ppm` image format for easy testing and debugging
-- 🚧 CLI support for different render modes and configs
 - ✅ Multi-threaded CPU Support
 
 ---
@@ -49,7 +48,7 @@ make
 ## 🚀 How to Run the Renderer
 
 ```bash
-./photonforge --scene ../scenes/usc.json --mode path --spp 128
+./photonforge
 ```
 
 ---
