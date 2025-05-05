@@ -103,16 +103,6 @@ void SceneLoader(Scene& scene, const char* test_file)
         {
             scene.enable_shadows = true;
         }
-        else if(result[0] =="renderer")
-        {
-            Renderer renderer(std::stoi(result[1]), std::stoi(result[2]), std::stod(result[3])); 
-            renderer.render(scene);
-        }
-        else if(result[0] =="tracer")
-        {
-            PathTracer tracer(std::stoi(result[1]), std::stoi(result[2]), std::stod(result[3]),std::stod(result[4])); 
-            tracer.render(scene);
-        }
         else if(result[0] == "arealight") {
             vec3 p0(std::stod(result[1]), std::stod(result[2]), std::stod(result[3]));
             vec3 p1(std::stod(result[4]), std::stod(result[5]), std::stod(result[6]));
@@ -130,7 +120,25 @@ void SceneLoader(Scene& scene, const char* test_file)
             auto env = std::make_shared<EnvironmentLight>(color, brightness, false);
             scene.environment_light = env;
         }        
+        else if (result[0] == "tracer")
+        {
+            // auto areaLight = std::make_shared<AreaLight>(vec3(2.0, 5.0, 0.0), vec3(1.0, 1.0, 1.0), 12.0);
+            auto areaLight = std::make_shared<AreaLight>(
+                vec3(-2.0, 3.0, -7.0),             // Slightly to the left and higher
+                vec3(0.2, -0.3, 1.0).normalized(), // Angled toward scene center
+                5.0,                               // Width
+                4.0,                               // Height
+                vec3(1.0, 1.0, 1.0),               // Color (white)
+                20.0                               // Brightness
+            );
+            scene.addLight(areaLight);
+            scene.prepareLights();
+            PathTracer tracer(std::stoi(result[1]), std::stoi(result[2]), std::stod(result[3]), std::stod(result[4]));
+            tracer.setRenderMode(PHOTON_MAPPING);
+            tracer.render(scene);
+        }
     }
 }
 
-// swap 1st and 3rd element if needed
+
+
