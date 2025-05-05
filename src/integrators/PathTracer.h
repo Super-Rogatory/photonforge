@@ -7,6 +7,7 @@
 #include "core/Scene.h"
 #include "core/Sampler.h"
 #include "photon-core/PhotonMap.h"
+#include "photon-core/CausticMap.h"
 #include <thread>
 #include <atomic>
 #include <vector> 
@@ -26,6 +27,8 @@ public:
     int image_width, image_height, spp, max_depth; // samples per pixel, default is 1 for now
 
     PhotonMap photonMap;
+    CausticMap causticMap;
+    
     RenderMode renderMode;
     const double small_t = 0.001;
 

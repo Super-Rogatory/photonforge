@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __PHOTON_MAP_H__
+#define __PHOTON_MAP_H__
 #define _USE_MATH_DEFINES
 #include <vector>
 #include <random>
@@ -16,7 +17,7 @@
 class PhotonMap
 {
 
-private:
+protected:
     std::vector<Photon> photons;
     int max_photons;
     int max_bounces;
@@ -73,7 +74,7 @@ public:
         std::cout << "KD-tree built successfully." << std::endl;
     }
 
-    void tracePhoton(const Scene &scene, const Ray &ray, const vec3 &power, int depth)
+    virtual void tracePhoton(const Scene &scene, const Ray &ray, const vec3 &power, int depth)
     {
         if (depth > 10)
         {
@@ -232,42 +233,7 @@ public:
         return photons;
     }
 
-    vec3 estimateRadiance(const vec3 &position, const vec3 &normal, double maxDist, int nPhotons) const
-    {
-        if (kdtree.isEmpty())
-        {
-            std::cout << "Warning: Attempting to estimate radiance with an empty photon map." << std::endl;
-            return vec3(0, 0, 0);
-        }
-
-        double maxDistSquared = maxDist * maxDist;
-        // Call the findNearest method to get nearby photons
-        auto interactions = kdtree.findNearest(position, maxDistSquared, nPhotons);
-
-        if (interactions.empty())
-        {
-            return vec3(0, 0, 0);
-        }
-
-        // Get actual radius of the sphere containing the found photons
-        double searchRadiusSquared = interactions.back().distance;
-
-        vec3 result(0, 0, 0);
-
-        // Sum up the contributions of all found photons
-        for (const auto &interaction : interactions)
-        {
-            const Photon *photon = interaction.photon;
-
-            // Filter photons based on incident direction (only consider photons coming from the front side)
-            if (dot(normal, -photon->direction) > 0.0)
-            {
-                result += photon->power;
-            }
-        }
-
-        // Scale by 1/(pi*r²) for density estimation
-        double scale = 1.0 / (M_PI * searchRadiusSquared);
-        return result * scale;
-    }
+    vec3 estimateRadiance(const vec3 &position, const vec3 &normal, double maxDist, int nPhotons) const;
+    const KDTree& getKdTree() const { return kdtree; }
 };
+#endif

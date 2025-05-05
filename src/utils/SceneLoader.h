@@ -134,7 +134,7 @@ void SceneLoader(Scene& scene, const char* test_file)
             scene.addLight(areaLight);
             scene.prepareLights();
             PathTracer tracer(std::stoi(result[1]), std::stoi(result[2]), std::stod(result[3]), std::stod(result[4]));
-            tracer.setRenderMode(HYBRID);
+            tracer.setRenderMode(PHOTON_MAPPING);
             tracer.render(scene);
         }
     }

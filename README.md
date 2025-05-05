@@ -7,7 +7,7 @@ PhotonForge is a physically-based Monte Carlo renderer written in C++. It suppor
 ## 🚧 Features (in Progress)
 
 - ✅ Path tracing (unbiased global illumination)
-- 🚧 Photon mapping (two-pass caustic + indirect light system)
+- ✅ Photon mapping (two-pass caustic + indirect light system)
 - ✅ Hybrid mode: path tracing + photon lookup
 - ✅ Physically-based materials: Diffuse, Specular, Cook-Torrance
 - ✅ Acceleration structures (BVH, KD-Tree)

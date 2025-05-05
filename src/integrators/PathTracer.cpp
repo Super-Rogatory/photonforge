@@ -16,8 +16,8 @@ void PathTracer::render(Scene &scene)
     // Build the photon map if needed
     if (renderMode == PHOTON_MAPPING || renderMode == HYBRID)
     {
-        int numPhotons = 5000;
-        photonMap.buildPhotonMap(scene, numPhotons);
+        photonMap.buildPhotonMap(scene, 5000);
+        causticMap.buildPhotonMap(scene, 2000); 
     }
     
 
@@ -227,20 +227,24 @@ vec3 PathTracer::renderWithPhotonMap(Scene &scene, Ray ray)
     vec3 hit_point = ray.origin + hit.t * ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);
 
-    // Get material and emission
+    // get material emission and shaded color
     vec3 emitted = hit.object->material_shader->emitted();
     vec3 material = hit.object->material_shader->shade(ray, hit_point, normal, scene);
 
-    // Direct lighting (from lights)
+    // direct lighting (from lights)
     vec3 direct = nextEventEstimation(scene, hit_point, normal, -ray.direction,
                                       *hit.object->material_shader);
 
-    // Indirect lighting (from photon map)
-    vec3 indirect = photonMap.estimateRadiance(hit_point, normal, 0.75, 200);
+    // indirect lighting (from global photon map)
+    vec3 indirect_global = photonMap.estimateRadiance(hit_point, normal, 0.75, 200);
 
-    // Combine components
-    return emitted + direct + material * indirect;
+    // caustic lighting (from specular-to-diffuse paths)
+    vec3 indirect_caustic = causticMap.estimateRadiance(hit_point, normal, 0.5, 100);
+
+    // combine components
+    return emitted + direct + material * (indirect_global + indirect_caustic * 1.5);
 }
+
 
 vec3 PathTracer::renderHybrid(Scene &scene, int depth, Ray ray)
 {
@@ -251,23 +255,27 @@ vec3 PathTracer::renderHybrid(Scene &scene, int depth, Ray ray)
     vec3 hit_point = ray.origin + hit.t * ray.direction;
     vec3 normal = hit.object->getNormal(hit_point);
 
-    // Get emitted light
+    // get emitted light from the material
     vec3 emitted = hit.object->material_shader->emitted();
 
-    // Get direct light using path tracer's next event estimation
+    // get direct light using next event estimation
     vec3 direct_light = nextEventEstimation(scene, hit_point, normal, -ray.direction,
                                             *hit.object->material_shader);
 
-    // For primary rays (depth=0), use photon mapping for indirect light
+    // initialize indirect lighting
     vec3 indirect_light(0);
     if (depth == 0)
     {
-        // Use photon map for first bounce indirect lighting
-        indirect_light = photonMap.estimateRadiance(hit_point, normal, 1.5, 400);
+        // for primary rays, use both global and caustic photon maps
+        vec3 indirect_global = photonMap.estimateRadiance(hit_point, normal, 1.0, 100);
+        vec3 indirect_caustic = causticMap.estimateRadiance(hit_point, normal, 0.5, 100);
+
+        // combine global and caustic contributions (optionally boost caustics)
+        indirect_light = indirect_global + indirect_caustic * 1.5;
     }
     else
     {
-        // Use regular path tracing for later bounces
+        // for secondary rays, use monte carlo path tracing
         vec3 local_dir = sampler.getCosineWeightedHemisphereDirection();
         vec3 new_direction = transformToWorld(local_dir, normal);
         Ray new_ray(hit_point + small_t * new_direction, new_direction);
@@ -277,27 +285,26 @@ vec3 PathTracer::renderHybrid(Scene &scene, int depth, Ray ray)
 
         if (pdf > 1e-6f)
         {
-            // Russian Roulette termination
+            // russian roulette termination
             const double rr_prob = 0.8;
             if (depth >= 3 && sampler.getRandomFloat() > rr_prob)
-            {
                 return emitted + direct_light;
-            }
 
             vec3 incoming = renderHybrid(scene, depth + 1, new_ray);
             vec3 brdf = hit.object->material_shader->shade(ray, hit_point, normal, scene) / M_PI;
 
             if (depth >= 3)
-            {
                 incoming /= rr_prob;
-            }
 
+            // accumulate indirect light from recursive bounce
             indirect_light = brdf * incoming * cos_theta / pdf;
         }
     }
 
+    // return final color from emitted, direct, and indirect light
     return emitted + direct_light + indirect_light;
 }
+
 
 void PathTracer::setPixel(const ivec2 &pixel, const vec3 &color)
 {
