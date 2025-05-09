@@ -55,7 +55,7 @@ make
 
 ## 👨‍💻 Authors
 
-- Abel Ting  
+- Abel Tung  
 - Chukwudi Ikem  
 - Claudia Osorio  
 - Elmer Vasquez  
