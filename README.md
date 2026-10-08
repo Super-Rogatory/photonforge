@@ -2,6 +2,7 @@
 
 PhotonForge is a physically-based Monte Carlo renderer written in C++. It supports both **path tracing** and **photon mapping**, simulating realistic lighting effects like soft shadows, indirect illumination, color bleeding, and caustics. Designed to be modular, fast, and educational.
 
+[Link]( https://docs.google.com/presentation/d/1cuxnHiPxdNVjZc35f5_ioNTofjmt96YahLIUCPYXu_U/edit?usp=sharing) to google presentation showing architecture and renders
 ---
 
 ## 🚧 Features (in Progress)
